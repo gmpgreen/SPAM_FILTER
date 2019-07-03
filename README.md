@@ -1,6 +1,10 @@
 # SPAM_FILTER
 ECE 470 Project
 
+## Installation
+
+- Since the SMS dataset is small, it is including in its entirely in the repo.
+
 ## Problem Statement and Motivation
 
 The motivation for this project is to develop a system that can filter
@@ -24,5 +28,5 @@ be added as necessary with a preference to use standard libraries
 whenever possible.
 
 
-[^1]: Undergraduate students, Department of Electrical and Computer
+[1]: Undergraduate students, Department of Electrical and Computer
     Engineering, University of Victoria
