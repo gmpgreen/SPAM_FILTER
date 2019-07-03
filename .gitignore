@@ -1,2 +1,7 @@
 .vscode
 a.exe
+CMakeFiles
+Makefile
+compile_commands.json
+cmake_install.cmake
+spam_filter

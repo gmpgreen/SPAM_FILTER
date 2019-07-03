@@ -3,6 +3,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <regex>
+
 // #include "spam/main.hpp"
 std::string trim(const std::string& str,
                  const std::string& whitespace = " \t")
@@ -52,6 +54,30 @@ int main()
     // output sms
     for (auto i = sms.begin(); i != sms.end(); ++i)
         std::cout << *i << '\n';
- 
+    
+    // Updating content
+    // each vector contains a vector (numbers for the feature)
+    std::vector<std::vector<int>> features;
+    
+    // iterate across sms vector and extract features
+    // for a proof of concept we can use bad features like number of exclaimation marks, question marks, length of string and how many spammy words they have.
+   std::regex word_regex("(\\S+)");
+   // see https://en.cppreference.com/w/cpp/regex
+   std::cout << "Trying out other regex" << std::endl;
+   std::regex emarks_regex("[!]");
+   std::cout << "Q mark down";
+   std::regex qmarks_regex("[\?]");
+
+   // http://www.cplusplus.com/reference/string/string/find/
+   for (auto i = sms.begin(); i != sms.end(); ++i)
+   {
+     auto sms_string = *i;
+     auto words_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), word_regex);
+     auto words_end = std::sregex_iterator();
+  std::cout << "Found" << std::distance(words_begin, words_end) << "words\n";
+     
+     auto emarks_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), emarks_regex);
+   std::cout << "Found" << std::distance(emarks_begin, words_end) << "!\n";
+   } 
     return 0;
 }
