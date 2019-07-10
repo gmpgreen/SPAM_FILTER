@@ -76,7 +76,11 @@ int main()
    std::regex emarks_regex("[!]");
    std::cout << "Q mark down";
    std::regex qmarks_regex("[\?]");
-
+   // urls with only www https://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url not the more efficient but gets the job done.
+   std::regex urls_regex("(?:(?:^www.)://|www.|ftp.)(?:([-A-Z0-9+&@#/%=~|$?!:,.]*)|[-A-Z0-9+&@#/%=~|$?!:,.])(?:([-A-Z0-9+&@#/%=~_|$?!:,.])|[A-Z0-9+&@#/%=~_|$])");
+   // https://stackoverflow.com/questions/201323/how-to-validate-an-email-address-using-a-regular-expression
+   std::regex email_regex("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
+  std::regex phone_number("([0-9]{8}|[0-9]{10}|[0-9]{9}|((\\([0-9]{3}\\) )|([0-9]{3}\\-))[0-9]{3}\\-[0-9]{4}$)");
    // http://www.cplusplus.com/reference/string/string/find/
    for (auto i = sms.begin(); i != sms.end(); ++i)
    {
@@ -87,7 +91,10 @@ int main()
      
      auto emarks_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), emarks_regex);
    // std::cout << "Found" << std::distance(emarks_begin, words_end) << "!\n";
-   number_regex_found(sms_string, qmarks_regex);
+   // number_regex_found(sms_string, qmarks_regex);
+   // number_regex_found(sms_string, urls_regex);
+   // number_regex_found(sms_string, email_regex);
+   number_regex_found(sms_string, phone_number);
    } 
     return 0;
 }
