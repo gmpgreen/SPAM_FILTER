@@ -18,6 +18,15 @@ std::string trim(const std::string& str,
 
     return str.substr(strBegin, strRange);
 }
+int number_regex_found(std::string sms_string, std::regex regex_code)
+{
+ auto words_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), regex_code);
+     auto words_end = std::sregex_iterator();
+  std::cout << "Horde" << std::distance(words_begin, words_end) << "words\n";
+     
+    return std::distance(words_begin, words_end);
+}
+
 // https://stackoverflow.com/questions/236129/how-do-i-iterate-over-the-words-of-a-string
 // https://stackoverflow.com/questions/15347123/how-to-construct-a-stdstring-from-a-stdvectorstring/18703743
 int main()
@@ -74,10 +83,11 @@ int main()
      auto sms_string = *i;
      auto words_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), word_regex);
      auto words_end = std::sregex_iterator();
-  std::cout << "Found" << std::distance(words_begin, words_end) << "words\n";
+   // std::cout << "Found" << std::distance(words_begin, words_end) << "words\n";
      
      auto emarks_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), emarks_regex);
-   std::cout << "Found" << std::distance(emarks_begin, words_end) << "!\n";
+   // std::cout << "Found" << std::distance(emarks_begin, words_end) << "!\n";
+   number_regex_found(sms_string, qmarks_regex);
    } 
     return 0;
 }
