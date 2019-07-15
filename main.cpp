@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <regex>
-
+#include <cmath>
 // #include "spam/main.hpp"
 std::string trim(const std::string& str,
                  const std::string& whitespace = " \t")
@@ -18,11 +18,16 @@ std::string trim(const std::string& str,
 
     return str.substr(strBegin, strRange);
 }
+
+double sigmoid_func(int x) 
+{
+    return 1 / (1 + std::exp(-x));
+}
 int number_regex_found(std::string sms_string, std::regex regex_code)
 {
- auto words_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), regex_code);
+    auto words_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), regex_code);
      auto words_end = std::sregex_iterator();
-  std::cout << "Horde" << std::distance(words_begin, words_end) << "words\n";
+    // std::cout << "Horde" << std::distance(words_begin, words_end) << "words\n";
      
     return std::distance(words_begin, words_end);
 }
@@ -80,8 +85,9 @@ int main()
    std::regex urls_regex("(?:(?:^www.)://|www.|ftp.)(?:([-A-Z0-9+&@#/%=~|$?!:,.]*)|[-A-Z0-9+&@#/%=~|$?!:,.])(?:([-A-Z0-9+&@#/%=~_|$?!:,.])|[A-Z0-9+&@#/%=~_|$])");
    // https://stackoverflow.com/questions/201323/how-to-validate-an-email-address-using-a-regular-expression
    std::regex email_regex("(\\w+)(\\.|_)?(\\w*)@(\\w+)(\\.(\\w+))+");
-  std::regex phone_number("([0-9]{8}|[0-9]{10}|[0-9]{9}|((\\([0-9]{3}\\) )|([0-9]{3}\\-))[0-9]{3}\\-[0-9]{4}$)");
+   std::regex phone_number("([0-9]{8}|[0-9]{10}|[0-9]{9}|((\\([0-9]{3}\\) )|([0-9]{3}\\-))[0-9]{3}\\-[0-9]{4}$)");
    // http://www.cplusplus.com/reference/string/string/find/
+   int numbers_of_features = 0;
    for (auto i = sms.begin(); i != sms.end(); ++i)
    {
      auto sms_string = *i;
@@ -90,11 +96,28 @@ int main()
    // std::cout << "Found" << std::distance(words_begin, words_end) << "words\n";
      
      auto emarks_begin = std::sregex_iterator(sms_string.begin(), sms_string.end(), emarks_regex);
+     std::vector<int> v = {number_regex_found(sms_string, qmarks_regex),
+                           number_regex_found(sms_string, urls_regex), 
+                           number_regex_found(sms_string, email_regex),
+                           number_regex_found(sms_string, phone_number)};
+
+    features.push_back(v);
+    numbers_of_features = numbers_of_features + 1;
    // std::cout << "Found" << std::distance(emarks_begin, words_end) << "!\n";
-   // number_regex_found(sms_string, qmarks_regex);
-   // number_regex_found(sms_string, urls_regex);
-   // number_regex_found(sms_string, email_regex);
-   number_regex_found(sms_string, phone_number);
+    //    number_regex_found(sms_string, qmarks_regex);
+    //    number_regex_found(sms_string, urls_regex);
+    //    number_regex_found(sms_string, email_regex);
+    //    number_regex_found(sms_string, phone_number);
    } 
+  std::vector<double> scoring;
+   for (auto row = features.begin(); row != features.end(); row++) {
+    double sum = 0;
+    for (auto col = row->begin(); col != row->end(); col++) {
+        // do stuff ...
+        sum += sigmoid_func(*col);
+    }
+    std::cout << "Value of Sum: " << sum /4 << std::endl;
+    scoring.push_back( sum /4);
+}
     return 0;
 }
