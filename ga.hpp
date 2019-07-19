@@ -39,4 +39,17 @@ struct population
  * Returns: string that is all lower case */
 std::string to_lower_case(std::string str_in);
 
+class GA
+{
+    public:
+    population mPopulation[N];
+
+    GA(sms_data data);
+    int Fitness_func(population pop, sms_data data);
+
+    private:
+    sms_data mData;
+
+};
+
 #endif

@@ -74,72 +74,9 @@ int main()
         *i = to_lower_case(*i); 
     }
 
-    population pop[N];
-    
-    for (int i = 0; i < N; i++)
-    {
-        for (int j = 0; j < W; j++)
-        {
-            // Setting initial population
-            pop[i].features[j].order_id_index = j;
-            pop[i].features[j].on_off = rand() % 2;
-        }
-
-        /* For each population member, eval fitness */
-        pop[i].fitness = fitness_func(pop[i], data);
-
-        std::cout << "fitness: " << pop[i].fitness << std::endl;
-    }
+    GA new_population = GA(data);
  
     return 0;
 }
 
-/*Param In: Population pop, data structure representing population of current generation
-            sms_data data, contains the two vectors of sms test data
-  Returns: int score, the total number of hits all keywords have in spam messages. (Consider normalizing score)          
- */
-int fitness_func(population pop, sms_data data)
-{
-        std::string keyword[W];
-        int index_id = 0; 
-        int score = 0;
 
-        for (int j = 0; j < W; j++)
-        {
-            if (pop.features[j].on_off == ON)
-            {
-                /* If element is turned ON, get keyword feature */
-                index_id = pop.features[j].order_id_index;
-                keyword[j].assign(keywords[index_id]);
-            }
-            else
-            {
-                keyword[j] = ""; //Set to null 
-            }
-        }
-        
-        /* Search for it inside SMS messeges.
-        Searches through every word in sms_data.*/
-        int k = 0;
-        for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
-        {
-            for (int j = 0; j < W; j++)
-            {
-                std::istringstream iss(*i);
-                std::string word;
-                while (iss >> word)
-                {
-                    if (word == keyword[j])
-                    {
-                        if (data.labels.at(k) == "spam")
-                        {
-                            score++;
-                        }
-                    }
-                }
-            }
-            k++;
-        }
-
-    return score;
-}
