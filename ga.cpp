@@ -24,7 +24,9 @@
  */
 std::string global_keywords[] = {"complimentary", "free", "cash", "prize", "urgent", 
     "act", "affordable", "apply", "beneficiary", "call", "click", "debt", 
-    "extra", "gift", "money", "win"
+    "extra", "gift", "money", "win",
+    "income", "please", "credit", "sex", "hello", "collect", "now", "luxury", "instant",
+    "important", "notification", "you", "your", "congratulations, congrats", "nude"
 };
 
 /* HELPER FUNCTIONS*/
@@ -80,7 +82,6 @@ GA::GA(sms_data data)
         {
             mPopulation[i] = mPopulationTemp[i];
         }
-
         Mutation();
         Inversion();
         fitness_func_wrapper();
@@ -109,18 +110,22 @@ void GA::Inversion()
 {
     for (int i = 0; i < N; i++)
     {
-        int inv_start = rand()%16;
-        int inv_end = rand()%16;
+        int inv_start = rand()% W;
+        int inv_end = rand()% W;
 
         if (inv_start < inv_end)
         {
             population temp = mPopulation[i];
             
-            for (int j = inv_start; j < inv_end; j++)
+            for (int j = 0; j <= (inv_end - inv_start); j++)
             {
-                temp.features[j] = mPopulation[i].features[inv_start - j + inv_end];
+                temp.features[inv_start + j] = mPopulation[i].features[inv_end - j];
             }
-            mPopulation[i] = temp;
+
+            for (int j = 0; j <= (inv_end - inv_start); j++)
+            {
+                mPopulation[i].features[j] = temp.features[j];
+            }
         }
     }
 }
@@ -195,7 +200,8 @@ int GA::Selection()
         index++;
     }
 
-    std::cout <<"index"<<index<<std::endl;
+    if (index >= W) {index = W - 1;} // Protect against out of bounds (should never happen)
+
     return index;
 }
 
@@ -208,6 +214,7 @@ int GA::Fitness_func(population pop, sms_data data)
         std::string keyword[W];
         int index_id = 0; 
         int score = 0;
+        int ReturnVal = 0;
 
         for (int j = 0; j < W; j++)
         {
@@ -224,32 +231,53 @@ int GA::Fitness_func(population pop, sms_data data)
         }
         /* Search for it inside SMS messeges.
         Searches through every word in sms_data.*/
-        int k = 0;
-        for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
+            //Perform scoring with test data
+    
+    int k = 0;
+    for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
+    {
+        std::istringstream iss(*i);
+        std::string word;
+        while (iss >> word)
         {
             for (int j = 0; j < W; j++)
             {
-                std::istringstream iss(*i);
-                std::string word;
-                while (iss >> word)
+                if (word == keyword[j])
                 {
-                    if (word == keyword[j])
-                    {
-                        if (data.labels.at(k) == "spam")
-                        {
-                            score += W - j; // Index 0 of keyword is weighted at 15, Index 15 is weighted to 1
-                        }
-                        else
-                        {
-                            score--;  // Evens out words commonly used in all texts
-                        }
-                    }
+                    score += W/4 - j/4;
                 }
             }
-            k++;
         }
+        if (score > (W/3.5)) // Threshold, can be tuned to other value
+        {
+            // std::cout<<"spam"<<std::endl;
+            if (data.labels.at(k) == "spam")
+            {
+                ReturnVal += 10;
+            }
+            else
+            {
+                --ReturnVal;
+            }
+        }
+        else
+        {
+            // std::cout<<"notspam"<<std::endl;
+            if (data.labels.at(k) == "spam")
+            {
+                --ReturnVal; // Missed a spam message
+            }
+        }
+        score = 0; //reset score for next SMS
+        k++;
+    }
 
-    return (score);
+    if (ReturnVal <= 0)
+    {
+        ReturnVal = 1;
+    }
+
+    return ReturnVal;
 }
 
 void GA::fitness_func_wrapper()

@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "ga.hpp"
 // #include "spam/main.hpp"
 
@@ -56,25 +57,103 @@ int main()
 
     sms_data data = parse_contents();
 
-    // output labels
-    // for (auto i = data.labels.begin(); i != data.labels.end(); ++i)
-    // {
-    //     std::cout << *i << '\n';    
-    // }
-
-    // output sms
-    // for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
-    // {
-    //     std::cout << *i << '\n';
-    // }
-
-    //convert to lower case
     for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
     {
-        *i = to_lower_case(*i); 
+        //convert to lower case
+        *i = to_lower_case(*i);
+
+        std::istringstream iss(*i);
+        std::string word;
+        while (iss >> word)
+        {
+            // remove punctuation
+            word.erase (std::remove_if (word.begin (), word.end (), ispunct), word.end ());
+        } 
     }
 
     GA new_population = GA(data);
+
+    // /* Search for it inside SMS messeges.
+    // Searches through every word in sms_data.*/
+    int score = 0;
+    std::string keyword[W];
+    int index_id = 0;
+    
+    std::vector<std::string> results_labels;
+
+    /* Find best population member */
+    int pop_fitness = 0;
+    int best_pop = 0;
+    for (int i = 0; i < N; i++)
+    {
+        if (new_population.mPopulation[i].fitness > pop_fitness)
+        {
+            pop_fitness = new_population.mPopulation[i].fitness;
+            best_pop = i;
+        }
+    }
+    std::cout << "best_pop fitness" << new_population.mPopulation[best_pop].fitness << std::endl;
+
+    // Set keyword array using the best population member.
+    for (int j = 0; j < W; j++)
+    {
+        if (new_population.mPopulation[best_pop].features[j].on_off == ON)
+        {
+            /* If element is turned ON, get keyword feature */
+            index_id = new_population.mPopulation[best_pop].features[j].order_id_index;
+            keyword[j].assign(global_keywords[index_id]);
+        }
+        else
+        {
+            keyword[j] = ""; //Set to null 
+        }
+    }
+    
+    //Perform scoring with test data
+    //int k = 0;
+    for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
+    {
+        std::istringstream iss(*i);
+        std::string word;
+        while (iss >> word)
+        {
+            for (int j = 0; j < W; j++)
+            {
+                if (word == keyword[j])
+                {
+                    score += W/4 - j/4;
+                }
+            }
+        }
+        if (score > W)
+        {
+            results_labels.push_back("spam");
+        }
+        else
+        {
+            results_labels.push_back("ham");
+        }
+        score = 0;
+        //k++;
+    }
+
+    int correct = 0;
+    
+    for (int i = 0; i < 5574; ++i)
+    {
+        if (data.labels.at(i) != results_labels.at(i))
+        {
+            //nothing
+        }
+        else
+        {
+            correct++;
+        }
+    }
+
+    float percent_result = float(correct)/5574;
+
+    std::cout<<"Result: "<<percent_result << std::endl;
  
     return 0;
 }

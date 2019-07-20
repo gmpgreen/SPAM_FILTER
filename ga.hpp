@@ -7,11 +7,11 @@
 #ifndef GA_HPP
 #define GA_HPP
 
-#define NUM_GENERATIONS 4
+#define NUM_GENERATIONS 20
 #define ON  1
 #define OFF 0
 #define N   8       // Population size
-#define W   16      // Width of chromosome (number of features)
+#define W   32      // Width of chromosome (number of features)
 //#define MAX_SPAM 747 //Total number of spam messages in training data
 
 /* CONSTANT DATA: Keywords to use as features. */
@@ -34,7 +34,7 @@ struct chromo
 struct population
 {
     uint16_t fitness;
-    chromo features[16]; 
+    chromo features[W]; 
 };
 
 /* Param: string that may or may not be lower case
