@@ -15,7 +15,7 @@
 //#define MAX_SPAM 747 //Total number of spam messages in training data
 
 /* CONSTANT DATA: Keywords to use as features. */
-extern std::string keywords[];
+extern std::string global_keywords[];
 
 /* DATA STRUCTURES */
 struct sms_data
@@ -47,6 +47,9 @@ class GA
 
     GA(sms_data data);
 
+    population mPopulation[N];
+    sms_data mData;
+
     private:
     
     int Fitness_func(population pop, sms_data data);
@@ -56,8 +59,6 @@ class GA
     void Mutation();
     void Inversion();
     
-    sms_data mData;
-    population mPopulation[N];
     population mPopulationTemp[N];
 
 };

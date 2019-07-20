@@ -83,7 +83,6 @@ GA::GA(sms_data data)
 
         Mutation();
         Inversion();
-
         fitness_func_wrapper();
 
         for (int i = 0; i < N; i++)
@@ -95,11 +94,13 @@ GA::GA(sms_data data)
 
 void GA::Mutation()
 {
+    int random_index = rand() % (W - 1);
+    
     for (int i = 0; i < N; i++)
     {
         if (rand()%2) //50% of the time, flip a random bit
         {
-            mPopulation[N].features[rand()%16].on_off = !(mPopulation[N].features[rand()%16].on_off);
+            mPopulation[N].features[random_index].on_off = !(mPopulation[N].features[random_index].on_off);
         }
     }
 }
@@ -257,6 +258,7 @@ void GA::fitness_func_wrapper()
     {
         /* For each population member, eval fitness */
         mPopulation[i].fitness = Fitness_func(mPopulation[i], mData);
+        
 
         std::cout << "fitness: " << mPopulation[i].fitness << std::endl;
     }
