@@ -7,7 +7,9 @@
 #include "ga.hpp"
 // #include "spam/main.hpp"
 
-int fitness_func(population pop, sms_data data);
+// Global SMS data
+std::vector<std::string> labels;
+std::vector<std::string> sms;
 
 std::string trim(const std::string& str,
                  const std::string& whitespace = " \t")
@@ -23,10 +25,8 @@ std::string trim(const std::string& str,
 }
 // https://stackoverflow.com/questions/236129/how-do-i-iterate-over-the-words-of-a-string
 // https://stackoverflow.com/questions/15347123/how-to-construct-a-stdstring-from-a-stdvectorstring/18703743
-sms_data parse_contents()
+void parse_contents()
 {
-    sms_data data;
-
     // Get the contents of file in a vector
 	// bool result = getFileContent("sms/spam.txt", vecOfStr);
     std::ifstream file("sms/spam.txt");
@@ -44,26 +44,26 @@ sms_data parse_contents()
             oss << iss.rdbuf();
             std::string sms_text = oss.str();
             // std::cout << sms_text << std::endl;
-            data.labels.push_back(first_word);
-            data.sms.push_back(trim(sms_text));
+            labels.push_back(first_word);
+            sms.push_back(trim(sms_text));
         }
         file.close();
     }
-    return data;
 }
 
 int main()
 { 
 
-    sms_data data = parse_contents();
+    parse_contents();
+    std::string word;
 
-    for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
+    for (auto i = sms.begin(); i != sms.end(); ++i)
     {
         //convert to lower case
         *i = to_lower_case(*i);
 
         std::istringstream iss(*i);
-        std::string word;
+        
         while (iss >> word)
         {
             // remove punctuation
@@ -71,7 +71,7 @@ int main()
         } 
     }
 
-    GA new_population = GA(data);
+    GA new_population = GA();
 
     // /* Search for it inside SMS messeges.
     // Searches through every word in sms_data.*/
@@ -102,6 +102,8 @@ int main()
             /* If element is turned ON, get keyword feature */
             index_id = new_population.mPopulation[best_pop].features[j].order_id_index;
             keyword[j].assign(global_keywords[index_id]);
+
+            std::cout<<keyword[j] << std::endl;
         }
         else
         {
@@ -110,11 +112,9 @@ int main()
     }
     
     //Perform scoring with test data
-    //int k = 0;
-    for (auto i = data.sms.begin(); i != data.sms.end(); ++i)
+    for (auto i = sms.begin(); i != sms.end(); ++i)
     {
         std::istringstream iss(*i);
-        std::string word;
         while (iss >> word)
         {
             for (int j = 0; j < W; j++)
@@ -125,7 +125,7 @@ int main()
                 }
             }
         }
-        if (score > W)
+        if (score > W )
         {
             results_labels.push_back("spam");
         }
@@ -134,14 +134,13 @@ int main()
             results_labels.push_back("ham");
         }
         score = 0;
-        //k++;
     }
 
     int correct = 0;
     
     for (int i = 0; i < 5574; ++i)
     {
-        if (data.labels.at(i) != results_labels.at(i))
+        if (labels.at(i) != results_labels.at(i))
         {
             //nothing
         }

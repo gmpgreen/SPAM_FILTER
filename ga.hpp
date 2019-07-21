@@ -3,27 +3,27 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <chrono>
+#include <random>
 
 #ifndef GA_HPP
 #define GA_HPP
 
-#define NUM_GENERATIONS 20
+#define NUM_GENERATIONS 50
 #define ON  1
 #define OFF 0
-#define N   8       // Population size
+#define N   16       // Population size
 #define W   32      // Width of chromosome (number of features)
 //#define MAX_SPAM 747 //Total number of spam messages in training data
 
 /* CONSTANT DATA: Keywords to use as features. */
 extern std::string global_keywords[];
 
-/* DATA STRUCTURES */
-struct sms_data
-{
-	std::vector<std::string> labels;
-    std::vector<std::string> sms;
-};
+// Global SMS data
+extern std::vector<std::string> labels;
+extern std::vector<std::string> sms;
 
+/* DATA STRUCTURES */
 struct chromo
 {
     bool     on_off;
@@ -45,14 +45,13 @@ class GA
 {
     public:    
 
-    GA(sms_data data);
+    GA();
 
     population mPopulation[N];
-    sms_data mData;
 
     private:
     
-    int Fitness_func(population pop, sms_data data);
+    int Fitness_func(population pop);
     void fitness_func_wrapper();
     void Crossover(int index_p1, int index_p2, int index_c1, int index_c2);
     int Selection();
