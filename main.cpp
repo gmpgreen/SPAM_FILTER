@@ -10,6 +10,8 @@
 // Global SMS data
 std::vector<std::string> labels;
 std::vector<std::string> sms;
+std::vector<std::string> labels_test;
+std::vector<std::string> sms_test;
 
 std::string trim(const std::string& str,
                  const std::string& whitespace = " \t")
@@ -25,11 +27,10 @@ std::string trim(const std::string& str,
 }
 // https://stackoverflow.com/questions/236129/how-do-i-iterate-over-the-words-of-a-string
 // https://stackoverflow.com/questions/15347123/how-to-construct-a-stdstring-from-a-stdvectorstring/18703743
-void parse_contents()
+void parse_contents(std::ifstream &file, bool is_test_data)
 {
     // Get the contents of file in a vector
 	// bool result = getFileContent("sms/spam.txt", vecOfStr);
-    std::ifstream file("sms/spam.txt");
     if (file.is_open()) {
         std::string line;
         while (getline(file, line)) {
@@ -43,9 +44,19 @@ void parse_contents()
             std::ostringstream oss;
             oss << iss.rdbuf();
             std::string sms_text = oss.str();
-            // std::cout << sms_text << std::endl;
-            labels.push_back(first_word);
-            sms.push_back(trim(sms_text));
+            
+            if (is_test_data)
+            {
+                labels_test.push_back(first_word);
+                sms_test.push_back(trim(sms_text));
+            }
+            else
+            {
+                labels.push_back(first_word);
+                sms.push_back(trim(sms_text));
+            }
+            
+
         }
         file.close();
     }
@@ -54,7 +65,13 @@ void parse_contents()
 int main()
 { 
 
-    parse_contents();
+    std::ifstream file_training("sms/spam_training.txt");
+    parse_contents(file_training, false);
+
+    std::ifstream file_test("sms/spam_small.txt");
+    parse_contents(file_test, true);
+
+    
     std::string word;
 
     for (auto i = sms.begin(); i != sms.end(); ++i)
@@ -112,7 +129,8 @@ int main()
     }
     
     //Perform scoring with test data
-    for (auto i = sms.begin(); i != sms.end(); ++i)
+    int num_texts = 0;
+    for (auto i = sms_test.begin(); i != sms_test.end(); ++i)
     {
         std::istringstream iss(*i);
         while (iss >> word)
@@ -121,11 +139,11 @@ int main()
             {
                 if (word == keyword[j])
                 {
-                    score += W/4 - j/4;
+                    score += W/8 - j/8;
                 }
             }
         }
-        if (score > W )
+        if (score > W/4 )
         {
             results_labels.push_back("spam");
         }
@@ -134,13 +152,15 @@ int main()
             results_labels.push_back("ham");
         }
         score = 0;
+
+        num_texts++;
     }
 
     int correct = 0;
     
-    for (int i = 0; i < 5574; ++i)
+    for (int i = 0; i < num_texts; ++i)
     {
-        if (labels.at(i) != results_labels.at(i))
+        if (labels_test.at(i) != results_labels.at(i))
         {
             //nothing
         }
@@ -150,7 +170,7 @@ int main()
         }
     }
 
-    float percent_result = float(correct)/5574;
+    float percent_result = float(correct)/num_texts;
 
     std::cout<<"Result: "<<percent_result << std::endl;
  

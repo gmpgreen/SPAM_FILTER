@@ -29,6 +29,8 @@ std::string global_keywords[] = {"complimentary", "free", "cash", "prize", "urge
     "important", "notification", "you", "your", "congratulations", "congrats", "nude"
 };
 
+int64_t global_random_helper = 0;
+
 /* HELPER FUNCTIONS*/
 
 /* Param: string that may or may not be lower case
@@ -40,6 +42,30 @@ std::string to_lower_case(std::string str_in)
         *i = std::tolower(*i);
     }
     return str_in;
+}
+
+/* Param: x: lower bound
+ *        y: upper bound, must be > x  
+ * Returns: random number between bounds x and y */
+int random(int x, int y)
+{
+
+    // construct a trivial random generator engine from a time-based seed:
+
+    int64_t seed = std::chrono::high_resolution_clock::now().time_since_epoch().count();
+
+    global_random_helper %= 10;
+    seed += global_random_helper;
+
+    std::mt19937 gen(seed);
+    std::uniform_int_distribution<int> dis(x,y);
+    
+    global_random_helper++;
+
+    int RetVal = reinterpret_cast<int>(dis(gen));
+
+    //std::cout<<"random"<<RetVal<<std::endl;
+    return RetVal;
 }
 
 /* CLASS DEFINITIONS*/
@@ -57,7 +83,7 @@ GA::GA()
         {
             // Setting initial population
             mPopulation[i].features[j].order_id_index = j;
-            mPopulation[i].features[j].on_off = rand() % 2;
+            mPopulation[i].features[j].on_off = random(0, 1);
         }
 
         /* For each population member, eval fitness */
@@ -90,15 +116,18 @@ GA::GA()
             std::cout << "fitness: " << mPopulation[i].fitness << std::endl;
         }
     }
+
+    for (int i=0; i<10; ++i)
+        std::cout << random(0, 10) << std::endl;
 }
 
 void GA::Mutation()
 {
-    int random_index = rand() % (W - 1);
+    int random_index = random(0, (W - 1));
     
     for (int i = 0; i < N; i++)
     {
-        if (rand()%2) //50% of the time, flip a random bit
+        if (random(0, 1)) //50% of the time, flip a random bit
         {
             mPopulation[N].features[random_index].on_off = !(mPopulation[N].features[random_index].on_off);
         }
@@ -109,8 +138,8 @@ void GA::Inversion()
 {
     for (int i = 0; i < N; i++)
     {
-        int inv_start = rand()% W;
-        int inv_end = rand()% W;
+        int inv_start = random(0, (W - 1));
+        int inv_end = random(0, (W - 1));
 
         if (inv_start < inv_end)
         {
@@ -246,11 +275,11 @@ int GA::Fitness_func(population pop)
             {
                 if (word == keyword[j])
                 {
-                    score += W/4 - j/4;
+                    score += W/8 - j/8;
                 }
             }
         }
-        if (score >= (W/3.5)) // Threshold, can be tuned to other value. 
+        if (score >= (W/6)) // Threshold, can be tuned to other value. 
         {
             // std::cout<<"spam"<<std::endl;
             if (labels.at(k) == "spam")

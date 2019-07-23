@@ -5,6 +5,7 @@
 #include <iostream>
 #include <chrono>
 #include <random>
+#include <functional>
 
 #ifndef GA_HPP
 #define GA_HPP
@@ -22,6 +23,9 @@ extern std::string global_keywords[];
 // Global SMS data
 extern std::vector<std::string> labels;
 extern std::vector<std::string> sms;
+
+extern std::vector<std::string> labels_test;
+extern std::vector<std::string> sms_test;
 
 /* DATA STRUCTURES */
 struct chromo
