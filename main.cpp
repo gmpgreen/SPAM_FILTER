@@ -143,7 +143,7 @@ int main()
                 }
             }
         }
-        if (score > W/4 )
+        if (score > W/5 )
         {
             results_labels.push_back("spam");
         }
@@ -195,8 +195,8 @@ int main()
 
     float percent_result = float(correct)/num_texts;
 
-    std::cout << "percentage of spam detected: " << (float(total_ham_detected*100) / total_ham) << "%" << std::endl;
-    std::cout << "percentage of ham detected: " << (float(total_spam_detected*100) / total_spam) << "%" << std::endl;
+    std::cout << "percentage of ham detected: " << (float(total_ham_detected*100) / total_ham) << "%" << std::endl;
+    std::cout << "percentage of spam detected: " << (float(total_spam_detected*100) / total_spam) << "%" << std::endl;
     std::cout<<"Overall Test data correctly sorted: "<< percent_result*100 << "%" << std::endl;
  
     return 0;

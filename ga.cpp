@@ -327,7 +327,7 @@ int GA::Fitness_func(population pop)
                 }
             }
         }
-        if (score >= (W/4)) // Threshold, can be tuned to other value. 
+        if (score >= (W/5)) // Threshold, can be tuned to other value. 
         {
             // std::cout<<"spam"<<std::endl;
             if (labels.at(k) == "spam")
