@@ -10,7 +10,7 @@
 #ifndef GA_HPP
 #define GA_HPP
 
-#define NUM_GENERATIONS 50
+#define MAX_GENERATIONS 50
 #define ON  1
 #define OFF 0
 #define N   16       // Population size
@@ -61,6 +61,7 @@ class GA
     int Selection();
     void Mutation();
     void Inversion();
+    bool Remaining();
     
     population mPopulationTemp[N];
 

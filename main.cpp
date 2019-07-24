@@ -109,7 +109,7 @@ int main()
             best_pop = i;
         }
     }
-    std::cout << "best_pop fitness" << new_population.mPopulation[best_pop].fitness << std::endl;
+    std::cout << "best_population fitness: " << new_population.mPopulation[best_pop].fitness << std::endl;
 
     // Set keyword array using the best population member.
     for (int j = 0; j < W; j++)
@@ -157,22 +157,47 @@ int main()
     }
 
     int correct = 0;
+
+    int total_spam = 0;
+    int total_ham = 0;
+    int total_spam_detected = 0;
+    int total_ham_detected = 0;
     
     for (int i = 0; i < num_texts; ++i)
     {
+        if (labels_test.at(i) == "spam")
+        {
+            total_spam++;
+        }
+        else if (labels_test.at(i) == "ham")
+        {
+            total_ham++;
+        }
+
         if (labels_test.at(i) != results_labels.at(i))
         {
             //nothing
         }
         else
         {
+            if (labels_test.at(i) == "spam")
+            {
+                total_spam_detected++;
+            }
+            else if (labels_test.at(i) == "ham")
+            {
+                total_ham_detected++;
+            }
+
             correct++;
         }
     }
 
     float percent_result = float(correct)/num_texts;
 
-    std::cout<<"Result: "<<percent_result << std::endl;
+    std::cout << "percentage of spam detected: " << (float(total_ham_detected*100) / total_ham) << "%" << std::endl;
+    std::cout << "percentage of ham detected: " << (float(total_spam_detected*100) / total_spam) << "%" << std::endl;
+    std::cout<<"Overall Test data correctly sorted: "<< percent_result*100 << "%" << std::endl;
  
     return 0;
 }

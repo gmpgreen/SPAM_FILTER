@@ -5,12 +5,15 @@
  * All test data will be converted to lower case in pre-processing step for ease of search.
  * 
  * GA Algorithm: 
- * Initialize population with N = 8
- * Each 'chromosone' will 16 bits wide
+ * Initialize population with N = 16
+ * Each 'chromosone' will 32 bits wide
  * Each member of the population has chromosone initialzed randomly, 0 or 1
  * 
- * For now, Fitness Function will randomly test chromosone against a
- * subset of messages (ie 200) and will return the number of hits it gets from spam  messages.
+ * Fitness Function will generate a score that is based on the following criteria:
+ *  -The number of matches in a text message with a chromosome
+ *  -The weighting of the matching chromosomes
+ *  -Small score penalty for words that occur too commonly in all messages
+ *  -A score penalty for chromosomes that have very little diversity (ie < 8)
  * 
  * There will be N/2 crossover operations, using the fitness function to determine probablity of parent.
  * 
@@ -94,7 +97,7 @@ GA::GA()
     }
     
     
-    for (int k = 0; k < NUM_GENERATIONS; k++)
+    for (int k = 0; k < MAX_GENERATIONS; k++)
     {
         std::cout << "generation " << k+1 << ":" << std::endl;
 
@@ -115,10 +118,16 @@ GA::GA()
         {
             std::cout << "fitness: " << mPopulation[i].fitness << std::endl;
         }
-    }
 
-    for (int i=0; i<10; ++i)
-        std::cout << random(0, 10) << std::endl;
+        if ( (k != 0) && (!(k % 10)) ) // Check number of unique remaining chromosomes every 10 iterations
+        {
+            if (!Remaining())
+            {
+                std::cout << "Number of iterations: " << k+1 << std::endl;
+                break;
+            }
+        }
+    }
 }
 
 void GA::Mutation()
@@ -233,6 +242,45 @@ int GA::Selection()
     return index;
 }
 
+bool GA::Remaining()
+{
+    bool RetVal = true;
+
+    /* Find best population member */
+    int pop_fitness = 0;
+    int best_pop = 0;
+    for (int i = 0; i < N; i++)
+    {
+        if (mPopulation[i].fitness > pop_fitness)
+        {
+            pop_fitness = mPopulation[i].fitness;
+            best_pop = i;
+        }
+    }
+
+    int count = 0;
+    for (int i = 0; i < W; i++)
+    {
+        for (int j = 0; j < W; j++)
+        {
+           if ((mPopulation[best_pop].features[j].order_id_index == i) 
+           && mPopulation[best_pop].features[j].on_off == 1)
+           {
+               count++;
+               break;
+           }
+        }
+    }
+
+    if (count < 12) // Genetic Algorithm Stop Criteria
+    {
+        std::cout <<"chromosomes left "<< count << std::endl;
+        RetVal = false;
+    }
+
+    return RetVal;
+}
+
 /*Param In: Population pop, data structure representing population of current generation
             sms_data data, contains the two vectors of sms test data
   Returns: int score, the total number of hits all keywords have in spam messages. (Consider normalizing score)          
@@ -279,12 +327,12 @@ int GA::Fitness_func(population pop)
                 }
             }
         }
-        if (score >= (W/6)) // Threshold, can be tuned to other value. 
+        if (score >= (W/4)) // Threshold, can be tuned to other value. 
         {
             // std::cout<<"spam"<<std::endl;
             if (labels.at(k) == "spam")
             {
-                ReturnVal += 4;
+                ReturnVal += 6;
             }
             else
             {
@@ -299,6 +347,28 @@ int GA::Fitness_func(population pop)
                 --ReturnVal; // Missed a spam message, reduce score
             }
         }
+
+        int unique_chromo = 0;
+        for (int i = 0; i < W; i++)
+        {
+            for (int j = 0; j < W; j++)
+            {
+                if ((pop.features[j].order_id_index == i) 
+                && pop.features[j].on_off == 1)
+                {
+                    unique_chromo++;
+                    break;
+                }
+            }
+        }
+
+        if (unique_chromo < 8)
+        {
+            // Penalize chromosomes with little diversity
+            ReturnVal /= 2;
+        }
+
+
         score = 0; //reset score for next SMS
         k++;
     }
